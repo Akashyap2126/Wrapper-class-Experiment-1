@@ -1,0 +1,90 @@
+import java.io.*;
+import java.util.*;
+
+class Employee implements Serializable {
+    private static final long serialVersionUID = 1L;
+    int id;
+    String name;
+    double salary;
+
+    Employee(int id, String name, double salary) {
+        this.id = id;
+        this.name = name;
+        this.salary = salary;
+    }
+}
+
+public class PartC {
+    static final String FILE_NAME = "employees.txt";
+
+    // Method to add employee
+    public static void addEmployee(Employee emp) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME, true)) {
+            @Override
+            protected void writeStreamHeader() throws IOException {
+                reset(); // Avoids writing multiple headers
+            }
+        }) {
+            oos.writeObject(emp);
+            System.out.println("Employee Added Successfully!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method to display employees
+    public static void displayEmployees() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
+            while (true) {
+                Employee emp = (Employee) ois.readObject();
+                System.out.println("ID: " + emp.id + ", Name: " + emp.name + ", Salary: " + emp.salary);
+            }
+        } catch (EOFException e) {
+            // End of file reached
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Main Menu
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int choice;
+
+        do {
+            System.out.println("\n===== Employee Management Menu =====");
+            System.out.println("1. Add Employee");
+            System.out.println("2. Display Employees");
+            System.out.println("3. Exit");
+            System.out.print("Enter your choice: ");
+            choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter Employee ID: ");
+                    int id = sc.nextInt();
+                    sc.nextLine(); // consume newline
+                    System.out.print("Enter Employee Name: ");
+                    String name = sc.nextLine();
+                    System.out.print("Enter Employee Salary: ");
+                    double salary = sc.nextDouble();
+                    Employee emp = new Employee(id, name, salary);
+                    addEmployee(emp);
+                    break;
+
+                case 2:
+                    displayEmployees();
+                    break;
+
+                case 3:
+                    System.out.println("Exiting...");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice! Try again.");
+            }
+        } while (choice != 3);
+
+        sc.close();
+    }
+}
